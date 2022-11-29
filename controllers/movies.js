@@ -21,7 +21,8 @@ module.exports.createMovie = (req, res, next) => {
     nameRU,
     nameEN,
     thumbnail,
-    movieId, } = req.body;
+    movieId,
+  } = req.body;
   const owner = req.user._id;
   return Movie.create({
     country,
@@ -35,7 +36,7 @@ module.exports.createMovie = (req, res, next) => {
     nameEN,
     thumbnail,
     movieId,
-    owner
+    owner,
   })
     .then((movie) => res.send(movie))
     .catch((err) => {
@@ -49,7 +50,7 @@ module.exports.createMovie = (req, res, next) => {
 
 module.exports.deleteMovie = (req, res, next) => {
   const { movieId } = req.params;
-  return Card.findById(movieId)
+  return Movie.findById(movieId)
     .orFail(() => {
       throw new NotFoundError('Карточка с указанным _id не найдена');
     })
