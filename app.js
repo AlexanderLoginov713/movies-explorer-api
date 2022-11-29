@@ -26,7 +26,7 @@ const limiter = rateLimit({
 app.use(limiter);
 app.use(helmet());
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect('mongodb://localhost:27017/moviesdb', {
   useNewUrlParser: true,
 });
 app.use(cookieParser());
