@@ -5,13 +5,14 @@ const mongoose = require('mongoose');
 const bodyparser = require('body-parser');
 const { errors } = require('celebrate');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const cors = require('./middlewares/cors');
 const router = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3001 } = process.env;
+const { limiter, DEV_DATABASE_PATH } = require('./utils/config');
+
+const { PORT = 3001, NODE_ENV, PRODUCTION_DATABASE_PATH } = process.env;
 const app = express();
 
 app.use(bodyparser.json());
@@ -19,14 +20,10 @@ app.use(bodyparser.urlencoded({ extended: true }));
 
 app.use(cors);
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
 app.use(limiter);
 app.use(helmet());
 
-mongoose.connect('mongodb://localhost:27017/moviesdb', {
+mongoose.connect(NODE_ENV === 'production' ? PRODUCTION_DATABASE_PATH : DEV_DATABASE_PATH, {
   useNewUrlParser: true,
 });
 app.use(cookieParser());
