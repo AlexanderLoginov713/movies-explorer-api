@@ -20,8 +20,6 @@ module.exports.checkingLogin = celebrate({
 module.exports.checkingCreateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom(checkingUrl),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
@@ -29,26 +27,29 @@ module.exports.checkingCreateUser = celebrate({
 
 module.exports.checkingUpdateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    about: Joi.string().min(2).max(30).required(),
-  }),
-});
-
-module.exports.checkingUserId = celebrate({
-  params: Joi.object().keys({
-    userId: Joi.string().required().hex().length(24),
+    name: Joi.string().required().min(2).max(30),
+    email: Joi.string().required().email(),
   }),
 });
 
 module.exports.checkingCreateMovie = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().required().custom(checkingUrl),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.string().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().custom(checkingUrl),
+    trailerLink: Joi.string().required().custom(checkingUrl),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
+    thumbnail: Joi.string().required().custom(checkingUrl),
+    movieId: Joi.number().required(),
   }),
 });
 
-module.exports.checkingMovieId = celebrate({
+module.exports.checkingDeleteMovie = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().required().hex().length(24),
+    movieId: Joi.string().required().length(24).hex(),
   }),
 });
