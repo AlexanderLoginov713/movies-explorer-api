@@ -14,7 +14,7 @@ const { limiter, DEV_DATABASE_PATH } = require('./utils/config');
 
 const { PORT = 3001, NODE_ENV, PRODUCTION_DATABASE_PATH } = process.env;
 const app = express();
-
+app.use(requestLogger);
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
 
@@ -33,7 +33,6 @@ app.get('/crash-test', () => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
-app.use(requestLogger);
 
 app.use('/', router);
 

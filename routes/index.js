@@ -4,7 +4,7 @@ const moviesRouter = require('./movies');
 const auth = require('../middlewares/auth');
 const NotFoundError = require('../errors/NotFoundError');
 
-const { createUser, login, logout } = require('../controllers/users');
+const { createUser, login, signout } = require('../controllers/users');
 
 const {
   checkingCreateUser,
@@ -13,8 +13,9 @@ const {
 
 router.post('/signup', checkingCreateUser, createUser);
 router.post('/signin', checkingLogin, login);
-router.post('/logout', logout);
+
 router.use(auth);
+router.get('/signout', signout);
 router.use('/users', userRouter);
 router.use('/movies', moviesRouter);
 router.use('*', (req, res, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));

@@ -55,6 +55,8 @@ module.exports.updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Такой email существует'));
       } else next(err);
     });
 };
@@ -73,11 +75,14 @@ module.exports.login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
         sameSite: true,
-      }).send({ token });
+      }).send({
+        message: 'Авторизация прошла успешно',
+        id: user._id,
+      });
     })
     .catch(next);
 };
 
-module.exports.logout = (req, res) => {
+module.exports.signout = (req, res) => {
   res.clearCookie('jwt').status(200).send({ message: 'Вы успешно вышли из системы!' });
 };

@@ -4,49 +4,20 @@ const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  Movie.find({ owner: req.user._id })
     .then((movies) => res.send(movies))
     .catch(next);
 };
 
-module.exports.createMovie = (req, res, next) => {
-  const {
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    nameRU,
-    nameEN,
-    thumbnail,
-    movieId,
-  } = req.body;
-  const owner = req.user._id;
-  return Movie.create({
-    country,
-    director,
-    duration,
-    year,
-    description,
-    image,
-    trailerLink,
-    nameRU,
-    nameEN,
-    thumbnail,
-    movieId,
-    owner,
-  })
-    .then((movie) => res.send(movie))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании карточки'));
-      } else {
-        next(err);
-      }
-    });
-};
+module.exports.createMovie = (req, res, next) => Movie.create({ ...req.body, owner: req.user._id })
+  .then((movie) => res.send(movie))
+  .catch((err) => {
+    if (err.name === 'ValidationError') {
+      next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+    } else {
+      next(err);
+    }
+  });
 
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
