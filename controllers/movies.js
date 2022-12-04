@@ -2,13 +2,14 @@ const Movie = require('../models/movie');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
-
+const ConflictError = require('../errors/ConflictError');
 const {
   WRONG_DATA_MOVIE,
   WRONG_DATA_MOVIE_DELETE,
   MOVIE_NOT_FOUND,
   ACCESS_ERROR,
   MOVIE_DELETED,
+  MOVIE_ALREADY_EXIST,
 } = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
@@ -22,6 +23,8 @@ module.exports.createMovie = (req, res, next) => Movie.create({ ...req.body, own
   .catch((err) => {
     if (err.name === 'ValidationError') {
       next(new BadRequestError(WRONG_DATA_MOVIE));
+    } else if (err.code === 11000) {
+      next(new ConflictError(MOVIE_ALREADY_EXIST));
     } else {
       next(err);
     }
