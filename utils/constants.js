@@ -18,7 +18,6 @@ const REG_SUCCESS = 'Регистрация прошла успешно';
 const SIGNOUT_SUCCESS = 'Вы успешно вышли из системы!';
 const MOVIE_DELETED = 'Карточка удалена';
 const SERVER_DOWN = 'Сервер сейчас упадёт';
-const MOVIE_ALREADY_EXIST = 'Такая карточка уже существует';
 
 module.exports = {
   ACCESS_ERROR,
@@ -41,5 +40,4 @@ module.exports = {
   WRONG_USER_ID,
   MOVIE_DELETED,
   SERVER_DOWN,
-  MOVIE_ALREADY_EXIST,
 };
