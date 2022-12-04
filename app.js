@@ -13,6 +13,8 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { limiter, DEV_DATABASE_PATH } = require('./utils/config');
 
 const { PORT = 3001, NODE_ENV, PRODUCTION_DATABASE_PATH } = process.env;
+const { SERVER_DOWN } = require('./utils/constants');
+
 const app = express();
 app.use(requestLogger);
 app.use(bodyparser.json());
@@ -30,7 +32,7 @@ app.use(cookieParser());
 
 app.get('/crash-test', () => {
   setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
+    throw new Error(SERVER_DOWN);
   }, 0);
 });
 

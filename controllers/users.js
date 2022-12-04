@@ -6,14 +6,25 @@ const BadRequestError = require('../errors/BadRequestError');
 const ConflictError = require('../errors/ConflictError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
+const { DEV_JWT_SECRET } = require('../utils/config');
+const {
+  USER_NOT_FOUND,
+  WRONG_DATA_PROFILE,
+  WRONG_DATA_USER,
+  EMAIL_ALREADY_EXISTS,
+  AUTH_SUCCESS,
+  REG_SUCCESS,
+  SIGNOUT_SUCCESS,
+  WRONG_USER_ID,
+} = require('../utils/constants');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => { throw new NotFoundError('Пользователь не найден'); })
+    .orFail(() => { throw new NotFoundError(USER_NOT_FOUND); })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Невалидный id пользователя'));
+        next(new BadRequestError(WRONG_USER_ID));
       } else {
         next(err);
       }
@@ -29,14 +40,14 @@ module.exports.createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => res.send({
-      message: 'Регистрация прошла успешно',
+      message: REG_SUCCESS,
       email: user.email,
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        next(new BadRequestError(WRONG_DATA_USER));
       } else if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует.'));
+        next(new ConflictError(EMAIL_ALREADY_EXISTS));
       } else {
         next(err);
       }
@@ -50,13 +61,13 @@ module.exports.updateUser = (req, res, next) => {
     { name, email },
     { new: true, runValidators: true },
   )
-    .orFail(() => { throw new NotFoundError('Пользователь с указанным _id не найден'); })
+    .orFail(() => { throw new NotFoundError(USER_NOT_FOUND); })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+        next(new BadRequestError(WRONG_DATA_PROFILE));
       } else if (err.code === 11000) {
-        next(new ConflictError('Такой email существует'));
+        next(new ConflictError(EMAIL_ALREADY_EXISTS));
       } else next(err);
     });
 };
@@ -68,7 +79,7 @@ module.exports.login = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        NODE_ENV === 'production' ? JWT_SECRET : DEV_JWT_SECRET,
         { expiresIn: '7d' },
       );
       return res.cookie('jwt', token, {
@@ -76,7 +87,7 @@ module.exports.login = (req, res, next) => {
         httpOnly: true,
         sameSite: true,
       }).send({
-        message: 'Авторизация прошла успешно',
+        message: AUTH_SUCCESS,
         id: user._id,
       });
     })
@@ -84,5 +95,5 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.signout = (req, res) => {
-  res.clearCookie('jwt').status(200).send({ message: 'Вы успешно вышли из системы!' });
+  res.clearCookie('jwt').status(200).send({ message: SIGNOUT_SUCCESS });
 };

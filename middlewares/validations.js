@@ -2,12 +2,14 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const BadRequestError = require('../errors/BadRequestError');
 
+const { WRONG_URL_FORMAT } = require('../utils/constants');
+
 const checkingUrl = (url) => {
   const validate = validator.isURL(url);
   if (validate) {
     return url;
   }
-  throw new BadRequestError('Неправильный формат URL адреса');
+  throw new BadRequestError(WRONG_URL_FORMAT);
 };
 
 module.exports.checkingLogin = celebrate({
@@ -19,7 +21,7 @@ module.exports.checkingLogin = celebrate({
 
 module.exports.checkingCreateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
+    name: Joi.string().required().min(2).max(30),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
