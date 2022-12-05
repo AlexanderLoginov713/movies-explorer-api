@@ -2,6 +2,7 @@ const Movie = require('../models/movie');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
 
 const {
   WRONG_DATA_MOVIE,
@@ -9,6 +10,7 @@ const {
   MOVIE_NOT_FOUND,
   ACCESS_ERROR,
   MOVIE_DELETED,
+  MOVIE_EXIST,
 } = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
@@ -17,15 +19,30 @@ module.exports.getMovies = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.createMovie = (req, res, next) => Movie.create({ ...req.body, owner: req.user._id })
-  .then((movie) => res.send(movie))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError(WRONG_DATA_MOVIE));
-    } else {
-      next(err);
-    }
-  });
+module.exports.createMovie = (req, res, next) => {
+  Movie.find({ owner: req.user._id, movieId: req.body.movieId })
+    .then((m) => {
+      if (m.length !== 0) {
+        throw new ConflictError(MOVIE_EXIST);
+      }
+      Movie.create({ ...req.body, owner: req.user._id })
+        .then(({ _id }) => {
+          Movie.findById(_id)
+            .then((movie) => {
+              res.send(movie);
+            })
+            .catch(next);
+        });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError(WRONG_DATA_MOVIE));
+      } else {
+        next(err);
+      }
+    })
+    .catch(next);
+};
 
 module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
