@@ -96,7 +96,6 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.signout = (req, res) => {
-  res.cookie('jwt', '', { expires: new Date(0), path: '/' });
   res.clearCookie('jwt');
   return res.status(200).send({ message: SIGNOUT_SUCCESS });
 };
